@@ -9,10 +9,14 @@ String.prototype.format = function () {
 
 $(document).ready(function () {
   $('#file').on('change',function (){
-    // get the file name
-    const filename = document.getElementById("file").files[0].name;
+    // get the file names
+    var filenames = " "
+    const filelist = document.getElementById("file").files;
+    for(var i = 0; i < filelist.length; i++){
+      filenames += "'" + filelist[i].name + "' "
+    }
     // replace the "Choose file..." label
-    $(this).next('.uploadFile__label').html(filename);
+    $(this).next('.uploadFile__label').html(filenames);
   })
 
   $('#upload').on('click', function () {
@@ -21,7 +25,7 @@ $(document).ready(function () {
     $.each($('#file')[0].files, function (i, file) {
       data.append('file-' + i, file);
     });
-    var pages = $('#pages').val() ? $('#pages').val() : 1;
+    var pages = $('#pages').val() ? $('#pages').val() : "all";
     data.append('pages', pages);
     $.ajax({
       url: '/files',

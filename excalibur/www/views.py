@@ -42,23 +42,30 @@ def files():
             })
         session.close()
         return render_template('files.html', files_response=files_response)
-    file = request.files['file-0']
+    i=0
+    file = request.files['file-'+i]
     if file and allowed_filename(file.filename):
         file_id = generate_uuid()
         uploaded_at = dt.datetime.now()
         pages = request.form['pages']
-        filename = secure_filename(file.filename)
         filepath = os.path.join(conf.PDFS_FOLDER, file_id)
         mkdirs(filepath)
-        filepath = os.path.join(filepath, filename)
-        file.save(filepath)
-
+        firstfile = secure_filename(file.filename)
+        while (file and allowed_filename(file.filename))
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(conf.PDFS_FOLDER, file_id)
+            filepath = os.path.join(filepath, filename)
+            file.save(filepath)
+            i += 1
+            file = request.files['file-'+i]
+        if(i>1):
+            firstfile += "_and_" + str(i - 1) + "_other_files"
         session = Session()
         f = File(
             file_id=file_id,
             uploaded_at=uploaded_at,
             pages=pages,
-            filename=filename,
+            filename=firstfile,
             filepath=filepath
         )
         session.add(f)
