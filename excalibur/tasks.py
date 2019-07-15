@@ -27,7 +27,6 @@ def split(file_id):
         
         extract_pages, total_pages = get_pages(file.filepath, file.pages)
         parent_folder=os.path.join(conf.PDFS_FOLDER, file_id,'')
-        print(parent_folder)
         # extract into single-page PDFs
         gs_call = 'gs -q -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -o {}page-%d.pdf {}'.format(parent_folder,file.filepath)
         gs_call = gs_call.encode().split()
@@ -137,6 +136,23 @@ def extract(job_id):
         job.is_finished = True
         job.finished_at = dt.datetime.now()
 
+        session.commit()
+        session.close()
+    except Exception as e:
+        logging.exception(e)
+
+
+def merge(job_id):
+    try:
+        session = Session()
+        gs_call = 'gs -q -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -o concat.pdf '
+        for file in session.query(File).filter(File.file_id == file_id):
+            gs_call += str(file.filepath) + ' '
+        gs_call = gs_call.encode().split()
+        null = open(os.devnull, 'wb')
+        with Ghostscript(*gs_call, stdout=null) as gs:
+            pass
+        null.close()
         session.commit()
         session.close()
     except Exception as e:

@@ -7,7 +7,7 @@ import click
 from . import __version__, settings
 from . import configuration as conf
 from .operators.python_operator import PythonOperator
-from .tasks import split, extract
+from .tasks import split, extract, merge
 from .utils.database import initialize_database, reset_database
 from .www.app import create_app
 
@@ -20,7 +20,8 @@ def abort_if_false(ctx, param, value):
 def _run(task_name, task_id):
     task_bag = {
         'split': split,
-        'extract': extract
+        'extract': extract,
+        'merge': merge
     }
     python_callable = task_bag[task_name]
     task = PythonOperator(python_callable, op_args=[task_id])
