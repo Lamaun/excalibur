@@ -43,7 +43,7 @@ def files():
         session.close()
         return render_template('files.html', files_response=files_response)
     i=0
-    file = request.files['file-'+i]
+    file = request.files['file-'+str(i)]
     if file and allowed_filename(file.filename):
         file_id = generate_uuid()
         uploaded_at = dt.datetime.now()
@@ -51,15 +51,18 @@ def files():
         filepath = os.path.join(conf.PDFS_FOLDER, file_id)
         mkdirs(filepath)
         firstfile = secure_filename(file.filename)
-        while (file and allowed_filename(file.filename))
+        while (file and allowed_filename(file.filename)):
             filename = secure_filename(file.filename)
             filepath = os.path.join(conf.PDFS_FOLDER, file_id)
             filepath = os.path.join(filepath, filename)
             file.save(filepath)
             i += 1
-            file = request.files['file-'+i]
+            if(i<len(request.files)):
+                file = request.files['file-'+str(i)]
+            else:
+                file = False
         if(i>1):
-            firstfile += "_and_" + str(i - 1) + "_other_files"
+            firstfile = str(i - 1) + "_file(s)_similar_to_"+firstfile
         session = Session()
         f = File(
             file_id=file_id,
@@ -71,7 +74,6 @@ def files():
         session.add(f)
         session.commit()
         session.close()
-
         command = 'excalibur run --task {} --uuid {}'.format('split', file_id)
         command_as_list = command.split(' ')
         executor = get_default_executor()
