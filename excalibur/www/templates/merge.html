@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% set active_page = "merge" %}
+{% block stylesheet %}
+{% endblock %}
+
+{% block files %}
+<div class="container">
+  <form class="mb-5">
+    <div class="row align-items-center">
+      <div class="col-md-6 col-sm-6 col-xs-12">
+        <div class="input-group">
+          <div class="custom-file uploadFile">
+            <input type="file" class="uploadFile__input" id="file" name="file" accept="application/pdf" multiple>
+            <label for="file" class="uploadFile__label">Upload PDFs</label>
+          </div>
+          <button type="button" id="upload" class="btn btn-outline-secondary">Upload</button>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+{% block javascript %}
+<script type="text/javascript" src="{{ url_for('static', filename='js/merge.js') }}"></script>
+{% endblock %}
