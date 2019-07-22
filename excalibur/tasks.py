@@ -24,26 +24,28 @@ def split(file_id):
     try:
         session = Session()
         file = session.query(File).filter(File.file_id == file_id).first()
+        
         extract_pages, total_pages = get_pages(file.filepath, file.pages)
+        parent_folder=os.path.join(conf.PDFS_FOLDER, file_id,'')
+        # extract into single-page PDFs
+        gs_call = 'gs -q -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -o {}page-%d.pdf {}'.format(parent_folder,file.filepath)
+        gs_call = gs_call.encode().split()
+        null = open(os.devnull, 'wb')
+        with Ghostscript(*gs_call, stdout=null) as gs:
+            pass
+        # PDF to PNG files for each page
+        gs_call = 'gs -q -sDEVICE=png16m -o {}page-%d.png -r300 {}'.format(parent_folder,file.filepath)
+        gs_call = gs_call.encode().split()
+        with Ghostscript(*gs_call, stdout=null) as gs:
+            pass
+        null.close()
 
         filenames, filepaths, imagenames, imagepaths, filedims, imagedims, detected_areas = ({} for i in range(7))
         for page in extract_pages:
-            # extract into single-page PDF
-            save_page(file.filepath, page)
-
             filename = 'page-{}.pdf'.format(page)
             filepath = os.path.join(conf.PDFS_FOLDER, file_id, filename)
             imagename = ''.join([filename.replace('.pdf', ''), '.png'])
             imagepath = os.path.join(conf.PDFS_FOLDER, file_id, imagename)
-
-            # convert single-page PDF to PNG
-            gs_call = '-q -sDEVICE=png16m -o {} -r300 {}'.format(
-                imagepath, filepath)
-            gs_call = gs_call.encode().split()
-            null = open(os.devnull, 'wb')
-            with Ghostscript(*gs_call, stdout=null) as gs:
-                pass
-            null.close()
 
             filenames[page] = filename
             filepaths[page] = filepath
@@ -136,5 +138,20 @@ def extract(job_id):
 
         session.commit()
         session.close()
+    except Exception as e:
+        logging.exception(e)
+
+
+def merge(file_id):
+    try:
+        parent_folder=os.path.join(conf.PDFS_FOLDER, file_id,'')
+        docs=os.listdir(parent_folder)
+        docs=" ".join(map(lambda x: os.path.join(parent_folder,x), docs))
+        gs_call = 'gs -q -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -o {}concat.pdf {}'.format(parent_folder,docs)
+        gs_call = gs_call.encode().split()
+        null = open(os.devnull, 'wb')
+        with Ghostscript(*gs_call, stdout=null) as gs:
+            pass
+        null.close()
     except Exception as e:
         logging.exception(e)

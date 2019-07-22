@@ -42,29 +42,38 @@ def files():
             })
         session.close()
         return render_template('files.html', files_response=files_response)
-    file = request.files['file-0']
+    i=0
+    file = request.files['file-'+str(i)]
     if file and allowed_filename(file.filename):
         file_id = generate_uuid()
         uploaded_at = dt.datetime.now()
         pages = request.form['pages']
-        filename = secure_filename(file.filename)
         filepath = os.path.join(conf.PDFS_FOLDER, file_id)
         mkdirs(filepath)
-        filepath = os.path.join(filepath, filename)
-        file.save(filepath)
-
+        firstfile = secure_filename(file.filename)
+        while (file and allowed_filename(file.filename)):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(conf.PDFS_FOLDER, file_id)
+            filepath = os.path.join(filepath, filename)
+            file.save(filepath)
+            i += 1
+            if(i<len(request.files)):
+                file = request.files['file-'+str(i)]
+            else:
+                file = False
+        if(i>1):
+            firstfile = str(i - 1) + "_file(s)_similar_to_"+firstfile
         session = Session()
         f = File(
             file_id=file_id,
             uploaded_at=uploaded_at,
             pages=pages,
-            filename=filename,
+            filename=firstfile,
             filepath=filepath
         )
         session.add(f)
         session.commit()
         session.close()
-
         command = 'excalibur run --task {} --uuid {}'.format('split', file_id)
         command_as_list = command.split(' ')
         executor = get_default_executor()
@@ -230,6 +239,44 @@ def jobs(job_id):
     return jsonify(job_id=job_id)
 
 
+@views.route('/merge', methods=['GET', 'POST'], defaults={'job_id': None})
+@views.route('/merge/<string:job_id>', methods=['GET'])
+def merge(job_id):
+    if job_id is not None:
+        directory = os.path.join(conf.PDFS_FOLDER, job_id)
+        filename = "concat.pdf"
+        filepath = os.path.join(directory, filename)
+        if os.path.isfile(filepath):
+            return send_from_directory(directory=directory, filename=filename, as_attachment=True)
+            render_template('merge.html', processing=False)
+        else:
+            return render_template('merge.html', processing=True)
+    if request.method == 'GET':
+        return render_template('merge.html', processing=False)
+    i=0
+    file = request.files['file-'+str(i)]
+    if file and allowed_filename(file.filename):
+        file_id = generate_uuid()
+        uploaded_at = dt.datetime.now()
+        filepath = os.path.join(conf.PDFS_FOLDER, file_id)
+        mkdirs(filepath)
+        while (file and allowed_filename(file.filename)):
+            filename = 'file-'+str(i)
+            filepath = os.path.join(conf.PDFS_FOLDER, file_id)
+            filepath = os.path.join(filepath, filename)
+            file.save(filepath)
+            i += 1
+            if(i<len(request.files)):
+                file = request.files['file-'+str(i)]
+            else:
+                file = False
+        command = 'excalibur run --task {} --uuid {}'.format('merge', file_id)
+        command_as_list = command.split(' ')
+        executor = get_default_executor()
+        executor.execute_async(command_as_list)
+    return jsonify(file_id=file_id)
+
+    
 @views.route('/download', methods=['POST'])
 def download():
     job_id = request.form['job_id']

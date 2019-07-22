@@ -31,8 +31,6 @@ def get_pages(filename, pages):
     if pages == '1':
         page_numbers.append({'start': 1, 'end': 1})
     else:
-        if infile.isEncrypted:
-            infile.decrypt(self.password)
         if pages == 'all':
             page_numbers.append({'start': 1, 'end': infile.getNumPages()})
         else:

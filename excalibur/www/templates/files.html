@@ -8,7 +8,7 @@
   <div class="row mb-4 border-bottom mb-5">
     <div class="col-md-12 text-center">
         <h1 class="display-4 align-items-center d-flex justify-content-center">
-            <img src="https://excalibur-py.readthedocs.io/en/master/_static/excalibur-logo.png" class="img-responsive" width="40" height="auto" alt="Excalibur">
+            <img src="{{ url_for('static', filename='excalibur-logo.png') }}" class="img-responsive" width="40" height="auto" alt="Excalibur">
             <span>Excalibur</span>
         </h1>
         <p class="lead">A web interface to extract tabular data from PDFs</p>
@@ -20,8 +20,8 @@
       <div class="col-md-6 col-sm-6 col-xs-12">
         <div class="input-group">
           <div class="custom-file uploadFile">
-            <input type="file" class="uploadFile__input" id="file" name="file" accept="application/pdf">
-            <label for="file" class="uploadFile__label">Upload PDF</label>
+            <input type="file" class="uploadFile__input" id="file" name="file" accept="application/pdf" multiple>
+            <label for="file" class="uploadFile__label">Upload PDFs</label>
           </div>
         </div>
       </div>
@@ -36,6 +36,8 @@
       </div>
     </div>
   </form>
+  <p>If you have multiple PDFs with tables at the same coordinates, upload them all here. 
+    Otherwise you can merge your PDF Files in the merge tab.</p>
   <h5 class="card-title py-3 mb-0 text-dark font-weight-bold">Previous Uploads</h5>
 
   <div class="card depth-1 mb-5">

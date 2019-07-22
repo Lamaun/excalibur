@@ -1,3 +1,4 @@
+
 // https://coderwall.com/p/flonoa/simple-string-format-in-javascript
 String.prototype.format = function () {
   var str = this;
@@ -28,14 +29,14 @@ $(document).ready(function () {
     var pages = $('#pages').val() ? $('#pages').val() : "all";
     data.append('pages', pages);
     $.ajax({
-      url: '/files',
+      url: '/merge',
       type: 'POST',
       cache: false,
       contentType: false,
       data: data,
       processData: false,
       success: function (data) {
-        var redirect = '{0}//{1}/workspaces/{2}'.format(window.location.protocol, window.location.host, data['file_id']);
+        var redirect = '{0}//{1}/merge/{2}'.format(window.location.protocol, window.location.host, data['file_id']);
         window.location.replace(redirect);
       }
     });
