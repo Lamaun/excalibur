@@ -142,18 +142,16 @@ def extract(job_id):
         logging.exception(e)
 
 
-def merge(job_id):
+def merge(file_id):
     try:
-        session = Session()
-        gs_call = 'gs -q -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -o concat.pdf '
-        for file in session.query(File).filter(File.file_id == file_id):
-            gs_call += str(file.filepath) + ' '
+        parent_folder=os.path.join(conf.PDFS_FOLDER, file_id,'')
+        docs=os.listdir(parent_folder)
+        docs=" ".join(map(lambda x: os.path.join(parent_folder,x), docs))
+        gs_call = 'gs -q -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -o {}concat.pdf {}'.format(parent_folder,docs)
         gs_call = gs_call.encode().split()
         null = open(os.devnull, 'wb')
         with Ghostscript(*gs_call, stdout=null) as gs:
             pass
         null.close()
-        session.commit()
-        session.close()
     except Exception as e:
         logging.exception(e)

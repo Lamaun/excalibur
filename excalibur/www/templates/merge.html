@@ -2,25 +2,34 @@
 {% set active_page = "merge" %}
 {% block stylesheet %}
 {% endblock %}
-
 {% block files %}
-<div class="container">
-  <form class="mb-5">
-    <div class="row align-items-center">
-      <div class="col-md-6 col-sm-6 col-xs-12">
-        <div class="input-group">
-          <div class="custom-file uploadFile">
-            <input type="file" class="uploadFile__input" id="file" name="file" accept="application/pdf" multiple>
-            <label for="file" class="uploadFile__label">Upload PDFs</label>
+{% if processing %}
+  <meta http-equiv="refresh" content="2" >
+  <div class="container">
+    <div class="jumbotron">
+      <h1 class="display-4">Processing</h1>
+      <p class="lead">Please wait while the PDFs are merged. 
+        When the download is finished you can use the files tab to extract tabular data from the merged file</p>
+    </div>
+  </div>
+{% else %}
+  <div class="container">
+    <form class="mb-5">
+      <div class="row align-items-center">
+        <div class="col-md-6 col-sm-6 col-xs-12">
+          <div class="input-group">
+            <div class="custom-file uploadFile">
+              <input type="file" class="uploadFile__input" id="file" name="file" accept="application/pdf" multiple>
+              <label for="file" class="uploadFile__label">Upload {{ processing }} PDFs</label>
+            </div>
+            <button type="button" id="upload" class="btn btn-outline-secondary">Upload</button>
           </div>
-          <button type="button" id="upload" class="btn btn-outline-secondary">Upload</button>
         </div>
       </div>
-    </div>
-  </form>
-</div>
+    </form>
+  </div>
+{% endif %}
 {% endblock %}
-
 {% block javascript %}
 <script type="text/javascript" src="{{ url_for('static', filename='js/merge.js') }}"></script>
 {% endblock %}
