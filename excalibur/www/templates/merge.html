@@ -4,30 +4,39 @@
 {% endblock %}
 {% block files %}
 {% if processing %}
-  <meta http-equiv="refresh" content="2" >
-  <div class="container">
-    <div class="jumbotron">
-      <h1 class="display-4">Processing</h1>
-      <p class="lead">Please wait while the PDFs are merged. 
-        When the download is finished you can use the files tab to extract tabular data from the merged file</p>
+<meta http-equiv="refresh" content="2">
+<div class="container">
+  <div class="jumbotron">
+    <h1 class="display-4">Processing</h1>
+    <p class="lead">Please wait while the PDFs are merged.
+      When the download is finished you can use the files tab to extract tabular data from the merged file</p>
+  </div>
+</div>
+{% else %}
+
+<div class="container">
+  <div class="row mb-4 border-bottom mb-5">
+    <div class="col-md-12 text-center">
+      <h1 class="display-4 align-items-center d-flex justify-content-center">
+        <span>Merge Tool</span>
+      </h1>
+      <p class="lead">Merges multiple PDFs into a single one</p>
     </div>
   </div>
-{% else %}
-  <div class="container">
-    <form class="mb-5">
-      <div class="row align-items-center">
-        <div class="col-md-6 col-sm-6 col-xs-12">
-          <div class="input-group">
-            <div class="custom-file uploadFile">
-              <input type="file" class="uploadFile__input" id="file" name="file" accept="application/pdf" multiple>
-              <label for="file" class="uploadFile__label">Upload {{ processing }} PDFs</label>
-            </div>
-            <button type="button" id="upload" class="btn btn-outline-secondary">Upload</button>
-          </div>
+  <form class="mb-5">
+    <div class="row align-items-center">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <div class="input-group">
+          <div class="custom-file uploadFile">
+            <input type="file" class="uploadFile__input" id="file" name="file" accept="application/pdf" multiple>
+            <label for="file" class="uploadFile__label">Choose PDF Files</label>
+          </div> <h1>→</h1>
+          <button type="button" id="upload" class="btn btn-primary">Upload</button>
         </div>
       </div>
-    </form>
-  </div>
+    </div>
+  </form>
+</div>
 {% endif %}
 {% endblock %}
 {% block javascript %}

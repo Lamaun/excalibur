@@ -52,7 +52,7 @@ def files():
         mkdirs(filepath)
         firstfile = secure_filename(file.filename)
         while (file and allowed_filename(file.filename)):
-            filename = secure_filename(file.filename)
+            filename = "file-"+str(i)+".pdf"
             filepath = os.path.join(conf.PDFS_FOLDER, file_id)
             filepath = os.path.join(filepath, filename)
             file.save(filepath)
