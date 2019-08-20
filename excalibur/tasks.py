@@ -99,20 +99,41 @@ def extract(job_id):
         rule = session.query(Rule).filter(Rule.rule_id == job.rule_id).first()
         file = session.query(File).filter(File.file_id == job.file_id).first()
 
+        parent_folder = os.path.join(conf.PDFS_FOLDER, file.file_id, '')
+        docs = os.listdir(parent_folder)
+        docs = sorted(list(map(lambda x: os.path.join(parent_folder, x),
+                               filter(lambda x: x[0:4] == "file", docs))))
+
         rule_options = json.loads(rule.rule_options)
         flavor = rule_options.pop('flavor')
         pages = rule_options.pop('pages')
 
-        tables = []
         filepaths = json.loads(file.filepaths)
-        for p in pages:
-            kwargs = pages[p]
-            kwargs.update(rule_options)
-            parser = Lattice(**kwargs) if flavor.lower() == 'lattice' else Stream(**kwargs)
-            t = parser.extract_tables(filepaths[p])
-            for _t in t:
-                _t.page = int(p)
-            tables.extend(t)
+        filepaths_as_list=list(filepaths.values())
+       
+        tables = []
+        i = 0
+        for doc in docs:
+            for f in filepaths_as_list:
+                os.remove(f)
+            gs_call = 'gs -q -sDEVICE=pdfwrite -dNOPAUSE -dBATCH -dSAFER -o {}page-%d.pdf {}'.format(
+                parent_folder, doc)
+            gs_call = gs_call.encode().split()
+            null = open(os.devnull, 'wb')
+            with Ghostscript(*gs_call, stdout=null) as gs:
+                pass
+            null.close()
+            for p in pages:
+                kwargs = pages[p]
+                kwargs.update(rule_options)
+                parser = Lattice(
+                    **kwargs) if flavor.lower() == 'lattice' else Stream(**kwargs)
+                t = parser.extract_tables(filepaths[p])
+                for _t in t:
+                    _t.page = int(p)+i
+                tables.extend(t)
+            i += len(pages)
+
         tables = TableList(tables)
 
         froot, fext = os.path.splitext(file.filename)
